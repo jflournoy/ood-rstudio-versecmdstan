@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+# Start RStudio Server
+#
+set -x
+
+module purge
+export RSTUDIO_AUTH="${PWD}/bin/pam-helper.sh"
+chmod +x $RSTUDIO_AUTH
+
+## create a wrapper script for rstudio server 
+## I actually am not 100% sure that all the configs need to go into both rserver and rsession 
+## but for now I am gonna put the configurations in both.
+export JOB_CONFIG_DIR=${PWD}
+myrserver=${JOB_CONFIG_DIR}/bin/rserver.sh
+myrsession=${JOB_CONFIG_DIR}/bin/rsession.sh
+
+cat > $myrserver <<EOF
+#!/bin/bash -l
+set -o xtrace
+export OMP_NUM_THREADS=${SLURM_JOB_CPUS_PER_NODE}
+EOF
+chmod +x $myrserver
+
+## if the user selected a specific version of R then we need to provide specific confs for rstudio
+echo "unset ALTERNATE_CONFIG" >> $myrserver 
+
+<%- unless context.envscript.blank? -%>
+cat >> $myrserver <<EOF
+[ -f <%= context.envscript.to_s %> ] && source <%= context.envscript.to_s %>
+EOF
+<%- end -%>
+
+## we will use a bare rserver container and load modules for R"
+export container_image=/n/singularity_images/OOD/rstudio-server/rstudio-server-1.4.1717-centos-7.9.2009.sif
+##load the module 
+cat >> $myrserver <<EOF
+module load <%= context.r_version %>
+export RSTUDIO_WHICH_R=\`which R\`
+EOF
+
+module load <%= context.r_version %>
+export RSTUDIO_WHICH_R=`which R`
+myrstudioserverconf=${PWD}/rstudioserver.conf
+cat > $myrstudioserverconf <<EOF
+rsession-ld-library-path=$LD_LIBRARY_PATH
+rsession-which-r=$RSTUDIO_WHICH_R
+auth-timeout-minutes=0
+auth-stay-signed-in-days=14
+EOF
+
+cat >> $myrserver <<EOF  
+export ALTERNATE_CONFIG="--config-file=$myrstudioserverconf"
+EOF
+
+## add user R libs if specified
+<%- if !context.rlibs.blank? -%>
+
+mkdir -p <%= context.rlibs %>
+
+if [ -d <%= context.rlibs %> ] ; then
+cat >> $myrserver <<EOF
+export R_LIBS_USER=<%= context.rlibs %>:$R_LIBS_USER
+EOF
+export R_LIBS_USER=<%= context.rlibs %>:$R_LIBS_USER
+myrsessionconf=${PWD}/rsession.conf 
+cat > $myrsessionconf <<EOF
+r-libs-user=<%= context.rlibs %>
+EOF
+cat >> $myrserver <<EOF
+export ALTERNATE_CONFIG="\$ALTERNATE_CONFIG  --rsession-config-file $myrsessionconf "
+EOF
+fi
+
+<%- end -%>
+
+## up to here they are the same 
+cp $myrserver $myrsession
+
+## set the working directory
+<%- if !context.custom_vanillaconf.to_i.zero? -%>
+
+export WORKING_DIR=${HOME}/rstudio-server/$SLURM_JOBID
+export RSTUDIO_CONFDIR=$WORKING_DIR/rstudio-conf
+mkdir -p $RSTUDIO_CONFDIR
+ln -s $JOB_CONFIG_DIR $WORKING_DIR/ood_job_config
+## finalize the config
+cat >> $myrsession <<EOF
+set -x
+exec /usr/lib/rstudio-server/bin/rsession --r-libs-user "\${R_LIBS_USER}" --session-default-working-dir=$WORKING_DIR --session-default-new-project-dir=$WORKING_DIR --session-timeout-minutes=0 --session-save-action-default=no  "\${@}"
+EOF
+
+<%- else -%>
+
+export WORKING_DIR=${HOME}
+## finalize the config
+cat >> $myrsession <<EOF
+set -x
+exec /usr/lib/rstudio-server/bin/rsession --r-libs-user "\${R_LIBS_USER}"  "\${@}"
+EOF
+
+<%- end -%>
+
+# [Rstudio 1.4] database is required
+cat > ${JOB_CONFIG_DIR}/database.conf <<END
+provider=sqlite
+directory=/var/lib/rstudio-server
+END
+
+# [Rstudio 1.4] configure logging
+cat > ${JOB_CONFIG_DIR}/logging.conf <<END
+[@rserver]
+log-level=info
+max-size-mb=10
+END
+
+## this is needed because each job needs to see only one server conf folder
+mkdir -p $HOME/.rstudio
+mkdir -p $HOME/.local/share/rstudio/
+cd $WORKING_DIR
+
+## this is what I will bind to /tmp as I need to hide each job from each other
+export SCRATCHDIR=/scratch/$USER/$SLURM_JOBID
+export MYTMP=$SCRATCHDIR/tmp
+mkdir -m 700 -p $MYTMP
+# Need a unique /tmp for this job for /tmp/rstudio-rsession & /tmp/rstudio-server
+mkdir -p ${SCRATCHDIR}/var/run/{lock/rstudio-server,rstudio-server/rstudio-rsession,mount,systemd,munge} ${SCRATCHDIR}/var/lib/rstudio-server ${SCRATCHDIR}/logs
+
+cat >> $myrserver <<EOF
+set -x
+exec /usr/lib/rstudio-server/bin/rserver \
+  --auth-none 0 \
+  --auth-pam-helper-path=pam-helper \
+  --www-port ${port} \
+  --auth-encrypt-password 0 --rsession-path=$myrsession \$ALTERNATE_CONFIG 
+EOF
+
+export SING_GPU=""
+
+<%- if !context.custom_num_gpus.to_i.zero? -%>
+export SING_GPU="--nv"
+<%- end -%>
+
+## some binds that are necessary for running with singularity
+export SING_BINDS=" --bind ${SCRATCHDIR}/logs:/var/log/rstudio-server --bind ${SCRATCHDIR}/var/run:/var/run --bind ${SCRATCHDIR}/var/lib/rstudio-server:/var/lib/rstudio-server  --bind ${SCRATCHDIR}/tmp:/tmp -B /etc/nsswitch.conf -B /etc/sssd/ -B /var/lib/sss -B /etc/slurm -B /slurm -B /var/run/munge  "
+
+## use our specific configs
+export SING_BINDS="$SING_BINDS --bind ${JOB_CONFIG_DIR}/database.conf:/etc/rstudio/database.conf --bind ${JOB_CONFIG_DIR}/logging.conf:/etc/rstudio/logging.conf --bind $RSTUDIO_AUTH:/usr/lib/rstudio-server/bin/pam-helper"
+
+
+<%- if !context.custom_vanillaconf.to_i.zero? -%>
+export SING_BINDS=" $SING_BINDS -B $RSTUDIO_CONFDIR:$HOME/.local/share/rstudio "
+<%- end -%>
+
+# source modules 
+[ -f ~/.Rprofile ] && cp ~/.Rprofile ${JOB_CONFIG_DIR}/.Rprofile
+touch ${JOB_CONFIG_DIR}/.Rprofile
+if ! grep -q  /n/helmod/apps/lmod/7.7.32/init/R ${JOB_CONFIG_DIR}/.Rprofile ; then
+  echo 'source("/n/helmod/apps/lmod/7.7.32/init/R")' >> ${JOB_CONFIG_DIR}/.Rprofile
+fi
+export SING_BINDS=" $SING_BINDS -B ${JOB_CONFIG_DIR}/.Rprofile:$HOME/.Rprofile "
+
+
+## add the proxy variable to ~/.Renviron as that is how rstudio works
+if [ ! -f $HOME/.Renviron ] 
+then 
+  echo https_proxy=rcproxy.rc.fas.harvard.edu:3128 > $HOME/.Renviron
+else 
+  if ! grep -q "https_proxy=rcproxy.rc.fas.harvard.edu:3128" $HOME/.Renviron 
+  then 
+    echo https_proxy=rcproxy.rc.fas.harvard.edu:3128 >> $HOME/.Renviron
+  fi
+fi 
+
+#
+# Launch the RStudio Server
+echo "Starting up rserver..."
+export SINGULARITYENV_USER=$(id -un)
+export SINGULARITYENV_PASSWORD=${RSTUDIO_PASSWORD}
+export SINGULARITYENV_RSTUDIO_PASSWORD=${RSTUDIO_PASSWORD}
+#export SINGULARITYENV_RSTUDIO_SESSION_TIMEOUT=0
+export SINGULARITYENV_https_proxy=rcproxy.rc.fas.harvard.edu:3128
+singularity exec $SING_GPU $SING_BINDS  $container_image $myrserver
+

@@ -4,7 +4,7 @@ category: Interactive Apps
 subcategory: Servers
 role: batch_connect
 description: |
-  This app will launch [RStudio Server] an IDE for [R] on the [FASSE Cluster]:
+  This app will launch [RStudio Server] an IDE for [R] on the [FASSE Cluster] based on a custom singularity container:
 
   [RStudio Server]: https://www.rstudio.com/products/rstudio-server/
   [R]: https://www.r-project.org/

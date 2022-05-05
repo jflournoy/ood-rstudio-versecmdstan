@@ -33,69 +33,46 @@ attributes:
     max:   4
     widget: number_field
     help: "Number of GPUs to allocate. Available only on GPU enabled partitions"
-  r_version:
-    widget: select
-    label: "R version to be loaded with Rstudio"
-    help: "This defines the version of R you want to use."
-    options:
-      - [ "R/3.3.3-fasrc01  Core",                "R/3.3.3-fasrc01" ]
-      - [ "R/3.3.3-fasrc02  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.3.3-fasrc02" ]
-      - [ "R/3.3.3-fasrc02  Comp intel",          "intel/17.0.4-fasrc01 R/3.3.3-fasrc02" ]
-      - [ "R/3.3.3-fasrc03  MPI  gcc openmpi",    "gcc/7.1.0-fasrc01 openmpi/2.1.0-fasrc02 R/3.3.3-fasrc03" ]
-      - [ "R/3.3.3-fasrc03  MPI  intel openmpi",  "intel/17.0.4-fasrc01  openmpi/2.1.0-fasrc02 R/3.3.3-fasrc03" ]
-      - [ "R/3.4.2-fasrc01  Core",                "R/3.4.2-fasrc01" ]
-      - [ "R/3.4.2-fasrc02  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.4.2-fasrc02" ]
-      - [ "R/3.4.2-fasrc02  Comp intel",          "intel/17.0.4-fasrc01 R/3.4.2-fasrc02" ]
-      - [ "R/3.4.2-fasrc03  MPI  gcc openmpi",    "gcc/7.1.0-fasrc01 openmpi/2.1.0-fasrc02 R/3.4.2-fasrc03" ]
-      - [ "R/3.4.2-fasrc03  MPI  gcc mvapich2",   "gcc/7.1.0-fasrc01 mvapich2/2.3b-fasrc02 R/3.4.2-fasrc03" ]
-      - [ "R/3.4.2-fasrc03  MPI  intel openmpi",  "intel/17.0.4-fasrc01 openmpi/2.1.0-fasrc02 R/3.4.2-fasrc03" ]
-      - [ "R/3.4.2-fasrc03  MPI  intel mvapich2", "intel/17.0.4-fasrc01 mvapich2/2.3b-fasrc02 R/3.4.2-fasrc03" ]
-      - [ "R/3.5.0-fasrc01  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.5.0-fasrc01" ]
-      - [ "R/3.5.0-fasrc01  Comp intel",          "intel/17.0.4-fasrc01 R/3.5.0-fasrc01" ]
-      - [ "R/3.5.0-fasrc02  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.5.0-fasrc02" ]
-      - [ "R/3.5.0-fasrc02  Comp intel",          "intel/17.0.4-fasrc01 R/3.5.0-fasrc02" ]
-      - [ "R/3.5.1-fasrc01  Core",                "R/3.5.1-fasrc01" ]
-      - [ "R/3.5.1-fasrc02  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.5.1-fasrc02" ]
-      - [ "R/3.5.1-fasrc02  Comp intel",          "intel/17.0.4-fasrc01 R/3.5.1-fasrc02" ]
-      - [ "R/3.5.1-fasrc03  MPI  gcc openmpi",    "gcc/7.1.0-fasrc01 openmpi/2.1.0-fasrc02 R/3.5.1-fasrc03" ]
-      - [ "R/3.5.1-fasrc03  MPI  gcc mvapich2",   "gcc/7.1.0-fasrc01 mvapich2/2.3b-fasrc02 R/3.5.1-fasrc03" ]
-      - [ "R/3.5.1-fasrc03  MPI  intel openmpi",  "intel/17.0.4-fasrc01 openmpi/2.1.0-fasrc02 R/3.5.1-fasrc03" ]
-      - [ "R/3.5.1-fasrc03  MPI  intel mvapich2", "intel/17.0.4-fasrc01 mvapich2/2.3b-fasrc02 R/3.5.1-fasrc03" ]
-      - [ "R/3.6.1-fasrc01  MPI  gcc openmpi",    "gcc/8.2.0-fasrc01 openmpi/3.1.1-fasrc01 R/3.6.1-fasrc01" ]
-      - [ "R/3.6.1-fasrc02  Core",                "R/3.6.1-fasrc02" ]
-      - [ "R/3.6.2-fasrc01  Comp intel",          "intel/19.0.5-fasrc01 R/3.6.2-fasrc01" ]
-      - [ "R/3.6.3-fasrc01  Core",                "R/3.6.3-fasrc01" ]
-      - [ "R/4.0.2-fasrc01  Core",                "R/4.0.2-fasrc01" ]
-      - [ "R/4.0.2-fasrc01  Core & gcc 9.3.0",    "R/4.0.2-fasrc01 gcc/9.3.0-fasrc01"] 
-      - [ "R/4.0.5-fasrc01  Core",                "R/4.0.5-fasrc01" ]
-      - [ "R/4.0.5-fasrc02  Comp gcc",            "gcc/9.3.0-fasrc01 R/4.0.5-fasrc02" ]
-      - [ "R/4.1.0-fasrc01  Core",                "R/4.1.0-fasrc01" ]
+#  r_version:
+#    widget: select
+#    label: "R version to be loaded with Rstudio"
+#    help: "This defines the version of R you want to use."
+#    options:
+#      - [ "R/3.3.3-fasrc01  Core",                "R/3.3.3-fasrc01" ]
+#      - [ "R/3.3.3-fasrc02  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.3.3-fasrc02" ]
+#      - [ "R/3.3.3-fasrc02  Comp intel",          "intel/17.0.4-fasrc01 R/3.3.3-fasrc02" ]
+#      - [ "R/3.3.3-fasrc03  MPI  gcc openmpi",    "gcc/7.1.0-fasrc01 openmpi/2.1.0-fasrc02 R/3.3.3-fasrc03" ]
+#      - [ "R/3.3.3-fasrc03  MPI  intel openmpi",  "intel/17.0.4-fasrc01  openmpi/2.1.0-fasrc02 R/3.3.3-fasrc03" ]
+#      - [ "R/3.4.2-fasrc01  Core",                "R/3.4.2-fasrc01" ]
+#      - [ "R/3.4.2-fasrc02  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.4.2-fasrc02" ]
+#      - [ "R/3.4.2-fasrc02  Comp intel",          "intel/17.0.4-fasrc01 R/3.4.2-fasrc02" ]
+#      - [ "R/3.4.2-fasrc03  MPI  gcc openmpi",    "gcc/7.1.0-fasrc01 openmpi/2.1.0-fasrc02 R/3.4.2-fasrc03" ]
+#      - [ "R/3.4.2-fasrc03  MPI  gcc mvapich2",   "gcc/7.1.0-fasrc01 mvapich2/2.3b-fasrc02 R/3.4.2-fasrc03" ]
+#      - [ "R/3.4.2-fasrc03  MPI  intel openmpi",  "intel/17.0.4-fasrc01 openmpi/2.1.0-fasrc02 R/3.4.2-fasrc03" ]
+#      - [ "R/3.4.2-fasrc03  MPI  intel mvapich2", "intel/17.0.4-fasrc01 mvapich2/2.3b-fasrc02 R/3.4.2-fasrc03" ]
+#      - [ "R/3.5.0-fasrc01  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.5.0-fasrc01" ]
+#      - [ "R/3.5.0-fasrc01  Comp intel",          "intel/17.0.4-fasrc01 R/3.5.0-fasrc01" ]
+#      - [ "R/3.5.0-fasrc02  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.5.0-fasrc02" ]
+#      - [ "R/3.5.0-fasrc02  Comp intel",          "intel/17.0.4-fasrc01 R/3.5.0-fasrc02" ]
+#      - [ "R/3.5.1-fasrc01  Core",                "R/3.5.1-fasrc01" ]
+#      - [ "R/3.5.1-fasrc02  Comp gcc",            "gcc/7.1.0-fasrc01 R/3.5.1-fasrc02" ]
+#      - [ "R/3.5.1-fasrc02  Comp intel",          "intel/17.0.4-fasrc01 R/3.5.1-fasrc02" ]
+#      - [ "R/3.5.1-fasrc03  MPI  gcc openmpi",    "gcc/7.1.0-fasrc01 openmpi/2.1.0-fasrc02 R/3.5.1-fasrc03" ]
+#      - [ "R/3.5.1-fasrc03  MPI  gcc mvapich2",   "gcc/7.1.0-fasrc01 mvapich2/2.3b-fasrc02 R/3.5.1-fasrc03" ]
+#      - [ "R/3.5.1-fasrc03  MPI  intel openmpi",  "intel/17.0.4-fasrc01 openmpi/2.1.0-fasrc02 R/3.5.1-fasrc03" ]
+#      - [ "R/3.5.1-fasrc03  MPI  intel mvapich2", "intel/17.0.4-fasrc01 mvapich2/2.3b-fasrc02 R/3.5.1-fasrc03" ]
+#      - [ "R/3.6.1-fasrc01  MPI  gcc openmpi",    "gcc/8.2.0-fasrc01 openmpi/3.1.1-fasrc01 R/3.6.1-fasrc01" ]
+#      - [ "R/3.6.1-fasrc02  Core",                "R/3.6.1-fasrc02" ]
+#      - [ "R/3.6.2-fasrc01  Comp intel",          "intel/19.0.5-fasrc01 R/3.6.2-fasrc01" ]
+#      - [ "R/3.6.3-fasrc01  Core",                "R/3.6.3-fasrc01" ]
+#      - [ "R/4.0.2-fasrc01  Core",                "R/4.0.2-fasrc01" ]
+#      - [ "R/4.0.2-fasrc01  Core & gcc 9.3.0",    "R/4.0.2-fasrc01 gcc/9.3.0-fasrc01"] 
+#      - [ "R/4.0.5-fasrc01  Core",                "R/4.0.5-fasrc01" ]
+#      - [ "R/4.0.5-fasrc02  Comp gcc",            "gcc/9.3.0-fasrc01 R/4.0.5-fasrc02" ]
+#      - [ "R/4.1.0-fasrc01  Core",                "R/4.1.0-fasrc01" ]
   rlibs:
     label: location of your R_LIBS_USER folder
     widget: text_field
-  custom_vanillaconf:
-    label: "Start rstudio with a vanilla configuration"
-    widget: check_box
-    value: 1
-    help: |
-          **_Checking this box will start rstudio with a fresh configuration in a new empty folder._** 
-          
-          This is useful if you need to run different instances at the same time with different configurations.<br> 
-          Leave the box unchecked if you want rstudio to start with the default configuration you have in your ~/.local/share/rstudio
-  envscript:
-    label: script to be executed before starting rstudio
-    widget: text_field
-    help: |
-          **_Enter the full path to a script file that you want to be executed before starting rstudio (default: None)_**
-
-          This is useful if you need to define custom variables, or any other setup task you might need.<br>
-          You can use this also if you need to load some additional modules. However  
-          please consider that you can load additional modules directly from R with:<br> 
-          > \> module('load','some_module_name')
-
-          for example 
-
-          > \> module('load','bcftools/1.5-fasrc02')
   custom_reservation:
     label: Reservation
     widget: text_field
@@ -111,10 +88,7 @@ form:
   - custom_num_cores
   - custom_num_gpus
   - custom_time
-  - r_version
   - rlibs
-  - custom_vanillaconf
-  - envscript
   - custom_email_address
   - bc_email_on_started
   - custom_reservation

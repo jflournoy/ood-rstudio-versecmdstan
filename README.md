@@ -1,3 +1,5 @@
+Forked version of FAS RC Harvard's version of OSC's app.
+
 # Batch Connect - OSC RStudio Server
 
 ![GitHub Release](https://img.shields.io/github/release/osc/bc_osc_rstudio_server.svg)

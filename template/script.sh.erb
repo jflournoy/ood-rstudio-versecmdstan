@@ -10,7 +10,7 @@ chmod +x $RSTUDIO_AUTH
 export JOB_CONFIG_DIR=${PWD}
 export OMP_NUM_THREADS=${SLURM_JOB_CPUS_PER_NODE}
 
-export container_image=/ncf/mclaughlin/users/jflournoy/data/containers/verse-cmdstan.simg
+export container_image=/ncf/mclaughlin/users/jflournoy/data/containers/verse-cmdstan-ggseg-libs.simg
 
 #get cmdstan path to set as environment variable in Renviron
 CMDSTANPATH=$(singularity inspect -e ${container_image} | awk '$2~/CMDSTAN=/ { print gensub(/CMDSTAN=.*(\/cmdstan\/cmdstan-[0-9\\.]+).*/, "\\1", "g", $2);}')

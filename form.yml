@@ -2,7 +2,10 @@
 title: "Rstudio Server"
 cluster: "fasse"
 attributes:
-  modules: null
+  modules: 
+    label: "Modules (will be loaded with `module load ...`)"
+    value: ""
+    widget: text_field
   extra_rstudio_args: ""
   custom_time:
     label: "Allocated Time (expressed in MM , or HH:MM:SS , or DD-HH:MM)."

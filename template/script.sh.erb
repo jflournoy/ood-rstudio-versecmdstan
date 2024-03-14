@@ -3,20 +3,29 @@
 #
 set -x
 
+<%- unless context.modules.blank? -%>
+# Purge the module environment to avoid conflicts
 module purge
-module load connectome-workbench/1.3.2-fasrc01
+
+# Load the require modules
+module load <%= context.modules %>
+
+# List loaded modules
+module list
+<%- end -%>
+
 export RSTUDIO_AUTH="${PWD}/bin/pam-helper.sh"
 chmod +x $RSTUDIO_AUTH
 
 export JOB_CONFIG_DIR=${PWD}
 export OMP_NUM_THREADS=${SLURM_JOB_CPUS_PER_NODE}
 
-export container_image=/ncf/mclaughlin/users/jflournoy/data/containers/verse-cmdstan-ggseg-libs.simg
+export container_image=/ncf/mclaughlin/users/jflournoy/data/containers/verse-cmdstan-cuda.simg
+#/ncf/mclaughlin/users/jflournoy/.fasseood/dev/rstudio-app/verse-cmdstan-ggseg-libs.simg
+
 
 #get cmdstan path to set as environment variable in Renviron
 CMDSTANPATH=$(singularity inspect -e ${container_image} | awk '$2~/CMDSTAN=/ { print gensub(/CMDSTAN=.*(\/cmdstan\/cmdstan-[0-9\\.]+).*/, "\\1", "g", $2);}')
-
-
 
 # [Rstudio 1.4] database is required
 cat > ${JOB_CONFIG_DIR}/database.conf <<END
@@ -37,7 +46,9 @@ mkdir -p $HOME/.local/share/rstudio/
 cd $WORKING_DIR
 
 ## this is what I will bind to /tmp as I need to hide each job from each other
-export SCRATCHDIR=/scratch/$USER/$SLURM_JOBID
+#export SCRATCHDIR=/scratch/$USER/$SLURM_JOBID
+#changed the above to the below for a little more control
+export SCRATCHDIR="$SCRATCH/LABS/mclaughlin_lab/Users/jflournoy/$SLURM_JOBID"
 export MYTMP=$SCRATCHDIR/tmp
 mkdir -m 700 -p $MYTMP
 # Need a unique /tmp for this job for /tmp/rstudio-rsession & /tmp/rstudio-server
@@ -50,6 +61,8 @@ chmod 0600 "$SCRATCHDIR/tmp/rstudio-server/secure-cookie-key"
 mkdir -p "$SCRATCHDIR/var/run"
 mkdir -p "$SCRATCHDIR/etc/rstudio"
 mkdir -p "$SCRATCHDIR/.Renviron"
+OVERLAY="$SCRATCHDIR/$(uuidgen).img"
+singularity overlay create --size 2512 "${OVERLAY}"
 
 cat > $SCRATCHDIR/.Renviron/.Renviron <<END
 CMDSTAN=${CMDSTANPATH}
@@ -89,6 +102,8 @@ export SINGULARITYENV_https_proxy=rcproxy.rc.fas.harvard.edu:3128
 export SINGULARITYENV_OMP_NUM_THREADS=${OMP_NUM_THREADS}
 export SINGULARITYENV_R_LIBS_USER=${R_LIBS_USER}
 singularity exec $SING_GPU \
+	--overlay ${OVERLAY} \
+	--bind /ncf \
 	--bind ${SCRATCHDIR}/var/run:/var/run \
 	--bind ${SCRATCHDIR}/logs:/var/log/rstudio-server \
 	--bind ${SCRATCHDIR}/var/lib/rstudio-server:/var/lib/rstudio-server \
@@ -99,11 +114,11 @@ singularity exec $SING_GPU \
 	--bind $RSTUDIO_AUTH:/usr/lib/rstudio-server/bin/pam-helper \
 	--bind $SCRATCHDIR/.Renviron/.Renviron:$(getent passwd ${USER}|cut -d: -f6)/.Renviron \
 	$container_image \
-	rserver \
+	/usr/lib/rstudio-server/bin/rserver \
 	--server-user=${USER} \
 	--www-port ${port} \
         --auth-none=1
- 
+
 #        --auth-pam-helper-path=pam-helper \
 #        --auth-stay-signed-in-days=30 \
 #        --auth-timeout-minutes=0

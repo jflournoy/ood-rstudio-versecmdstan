@@ -1,7 +1,21 @@
+<% app_dir = Pathname.new(__FILE__).dirname %>
+<% simg_files = Dir.glob("#{app_dir}/*.simg").map { |f| Pathname.new(f).relative_path_from(app_dir).to_s } %>
 ---
 title: "Rstudio Server"
 cluster: "fasse"
 attributes:
+  singimage: 
+    label: "Select a Singularity image from <%= app_dir %>"
+    widget: "select"
+    options:
+      - [ "Choose an image", "" ]
+      <% simg_files.each do |file| %>
+        <% if file == "container.simg" %>
+      - [ "<%= file %>", "<%= app_dir.join(file).to_s %>", selected: true ]
+        <% else %>
+      - [ "<%= file %>", "<%= app_dir.join(file).to_s %>" ]
+        <% end %>
+      <% end %>    
   modules: 
     label: "Modules (will be loaded with `module load ...`)"
     value: ""
@@ -87,6 +101,7 @@ attributes:
     help: "If you are not in multiple labs please leave this blank."
 
 form:
+  - singimage
   - modules
   - scratch
   - extra_rstudio_args

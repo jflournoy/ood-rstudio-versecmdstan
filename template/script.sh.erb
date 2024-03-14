@@ -48,7 +48,13 @@ cd $WORKING_DIR
 ## this is what I will bind to /tmp as I need to hide each job from each other
 #export SCRATCHDIR=/scratch/$USER/$SLURM_JOBID
 #changed the above to the below for a little more control
-export SCRATCHDIR="$SCRATCH/LABS/mclaughlin_lab/Users/jflournoy/$SLURM_JOBID"
+#
+
+export SCRATCHDIR="$SCRATCH/LABS/mclaughlin_lab/Users/$USER/$SLURM_JOBID"
+<%- if !context.scratch.blank? -%>
+export SCRATCHDIR="<%= context.scratch %>/$USER/$SLURM_JOBID"
+<%- end -%>
+mkdir -m 700 -p $SCRATCHDIR
 export MYTMP=$SCRATCHDIR/tmp
 mkdir -m 700 -p $MYTMP
 # Need a unique /tmp for this job for /tmp/rstudio-rsession & /tmp/rstudio-server

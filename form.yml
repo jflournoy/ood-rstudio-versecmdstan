@@ -7,6 +7,9 @@ attributes:
     value: ""
     widget: text_field
   extra_rstudio_args: ""
+  scratch:
+    label: "Scratch directory. Something like /scratch or /n/holyscratch01. You can leave this blank."
+    widget: text_field
   custom_time:
     label: "Allocated Time (expressed in MM , or HH:MM:SS , or DD-HH:MM)."
     value: "04:00:00"
@@ -85,6 +88,7 @@ attributes:
 
 form:
   - modules
+  - scratch
   - extra_rstudio_args
   - bc_queue
   - custom_memory_per_node
